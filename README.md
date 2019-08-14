@@ -10,9 +10,9 @@ This project requires **Python 3.x** and the following Python libraries installe
 - [matplotlib](http://matplotlib.org/)
 - [PyTorch](http://pytorch.org/)
 - [Torchvision](http://pytorch.org/)
-- [PIL](http://pillow.readthedocs.io/en/stable/)
+- [PIL](http://pillow.readthedocs.io/en/stable/).
 
-You will also need to have software installed to run and execute an [iPython Notebook](http://ipython.org/notebook.html)
+You will also need to have software installed to run and execute an [iPython Notebook](http://ipython.org/notebook.html).
 
 I recommend installing [Anaconda](https://www.continuum.io/downloads), a pre-packaged Python distribution that contains all of the necessary libraries and software for this project.
 
