@@ -1,7 +1,6 @@
 # Imports
 import torch
 from torch import nn
-from workspace_utils import active_session
 import argparse
 from data import load_data
 import build
@@ -33,50 +32,49 @@ def train_network():
     except ValueError: 
         optimizer = optim.Adam(model.classifier.parameters(), learning_rate)
         
-    with active_session():
-        for epoch in range(epochs):
-            for inputs, labels in trainloader:
-                steps += 1
-                if device == 'cuda' and torch.cuda.is_available():
-                    device = 'cuda'
-                else: 
-                    device = 'cpu'
-                # Move input and label tensors to the default device
-                inputs, labels = inputs.to(device), labels.to(device)
+    for epoch in range(epochs):
+        for inputs, labels in trainloader:
+            steps += 1
+            if device == 'cuda' and torch.cuda.is_available():
+                device = 'cuda'
+            else: 
+                device = 'cpu'
+            # Move input and label tensors to the default device
+            inputs, labels = inputs.to(device), labels.to(device)
 
-                optimizer.zero_grad()
+            optimizer.zero_grad()
 
-                logps = model.forward(inputs)
-                loss = criterion(logps, labels)
-                loss.backward()
-                optimizer.step()
+            logps = model.forward(inputs)
+            loss = criterion(logps, labels)
+            loss.backward()
+            optimizer.step()
 
-                running_loss += loss.item()
+            running_loss += loss.item()
 
-                if steps % print_every == 0:
-                    validation_loss = 0
-                    accuracy = 0
-                    model.eval()
-                    with torch.no_grad():
-                        for inputs, labels in validloader:
-                            inputs, labels = inputs.to(device), labels.to(device)
-                            logps = model.forward(inputs)
-                            batch_loss = criterion(logps, labels)
+            if steps % print_every == 0:
+                validation_loss = 0
+                accuracy = 0
+                model.eval()
+                with torch.no_grad():
+                    for inputs, labels in validloader:
+                        inputs, labels = inputs.to(device), labels.to(device)
+                        logps = model.forward(inputs)
+                        batch_loss = criterion(logps, labels)
 
-                            validation_loss += batch_loss.item()
+                        validation_loss += batch_loss.item()
 
-                            # Calculate accuracy
-                            ps = torch.exp(logps)
-                            top_p, top_class = ps.topk(1, dim=1)
-                            equals = top_class == labels.view(*top_class.shape)
-                            accuracy += torch.mean(equals.type(torch.FloatTensor)).item()
+                        # Calculate accuracy
+                        ps = torch.exp(logps)
+                        top_p, top_class = ps.topk(1, dim=1)
+                        equals = top_class == labels.view(*top_class.shape)
+                        accuracy += torch.mean(equals.type(torch.FloatTensor)).item()
 
-                    print(f"Epoch {epoch+1}/{epochs}.. "
-                          f"Train loss: {running_loss/print_every:.3f}.. "
-                          f"Validation loss: {validation_loss/len(validloader):.3f}.. "
-                          f"Validation accuracy: {accuracy/len(validloader):.3f}")
-                    running_loss = 0
-                    model.train()
+                print(f"Epoch {epoch+1}/{epochs}.. "
+                      f"Train loss: {running_loss/print_every:.3f}.. "
+                      f"Validation loss: {validation_loss/len(validloader):.3f}.. "
+                      f"Validation accuracy: {accuracy/len(validloader):.3f}")
+                running_loss = 0
+                model.train()
                     
     return model, testloader, train_data
 
@@ -156,5 +154,3 @@ if __name__ == "__main__":
     model, testloader, train_data = train_network()
     test_model(model, testloader)
     save_model(model, train_data)
-    
-    
